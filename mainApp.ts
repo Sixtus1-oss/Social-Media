@@ -1,4 +1,4 @@
-import { Application, Request, Response } from "express";
+import { Application, Request, Response, NextFunction } from "express";
 import userRouter from "./Router/userRouter";
 import rateRouter from "./Router/rateRouter";
 import commentRouter from "./Router/commentRouter";
@@ -6,11 +6,13 @@ import postRouter from "./Router/postRouter";
 
 export const mainApp = (app: Application) => {
   try {
+    // Define API routes
     app.use("/api/user", userRouter);
     app.use("/api/rate", rateRouter);
     app.use("/api/comment", commentRouter);
     app.use("/api/post", postRouter);
 
+    // Root route
     app.get("/", (req: Request, res: Response) => {
       try {
         res.status(200).json({
@@ -22,7 +24,13 @@ export const mainApp = (app: Application) => {
         });
       }
     });
+
+    // Global error-handling middleware
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      console.error(err.message); // Log the error
+      res.status(500).json({ message: "Internal Server Error" });
+    });
   } catch (error) {
-    return error;
+    console.error("Error initializing main app:", error);
   }
 };
